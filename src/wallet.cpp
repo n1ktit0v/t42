@@ -2192,8 +2192,8 @@ void CWallet::GetStakeWeightFromValue(const int64_t& nTime, const int64_t& nValu
         return;
     }
 
-    CBigNum bnCoinDayWeight = CBigNum(nValue) * nTimeWeight / COIN / nOneDay;
-    nWeight = bnCoinDayWeight.getuint64();
+    CBigNum bnStakeWeight = GetStakeWeightBN(CBigNum(nValue), nTimeWeight, GetTime());
+    nWeight = bnStakeWeight.getuint64();
 }
 
 bool CWallet::MergeCoins(const int64_t& nAmount, const int64_t& nMinValue, const int64_t& nOutputValue, std::list<uint256>& listMerged)

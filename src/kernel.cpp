@@ -26,6 +26,13 @@ unsigned int nModifierUpgradeTime = 0;
 
 typedef std::map<int, unsigned int> MapModifierCheckpoints;
 
+CBigNum GetStakeWeightBN(const CBigNum& bnValueIn, int64_t nTimeWeight, unsigned int nTimeTx)
+{
+    if (IsStakeWeightV2(nTimeTx))
+        return bnValueIn * nTimeWeight / COIN / nOneHour; // coin-hour resolution
+    return bnValueIn * nTimeWeight / COIN / nOneDay;      // coin-day resolution
+}
+
 // Hard checkpoints of stake modifiers to ensure they are deterministic
 static std::map<int, unsigned int> mapStakeModifierCheckpoints =
     {
@@ -327,8 +334,10 @@ bool CheckStakeKernelHash(uint32_t nBits, const CBlock& blockFrom, uint32_t nTxP
     if (nTimeTx < txPrev.nTime)  // Transaction timestamp violation
         return error("CheckStakeKernelHash() : nTime violation");
 
+    unsigned int nMinAge = IsStakeWeightV2(nTimeTx) ? nStakeMinAgeV2 : nStakeMinAge;
+
     uint32_t nTimeBlockFrom = blockFrom.GetBlockTime();
-    if (nTimeBlockFrom + nStakeMinAge > nTimeTx) // Min age requirement
+    if (nTimeBlockFrom + nMinAge > nTimeTx) // Min age requirement
         return error("CheckStakeKernelHash() : min age violation");
 
     CBigNum bnTargetPerCoinDay;
@@ -337,7 +346,7 @@ bool CheckStakeKernelHash(uint32_t nBits, const CBlock& blockFrom, uint32_t nTxP
 
     uint256 hashBlockFrom = blockFrom.GetHash();
 
-    CBigNum bnCoinDayWeight = CBigNum(nValueIn) * GetWeight((int64_t)txPrev.nTime, (int64_t)nTimeTx) / COIN / nOneDay;
+    CBigNum bnCoinDayWeight = GetStakeWeightBN(CBigNum(nValueIn), GetWeight((int64_t)txPrev.nTime, (int64_t)nTimeTx), nTimeTx);
     targetProofOfStake = (bnCoinDayWeight * bnTargetPerCoinDay).getuint256();
 
     // Calculate hash
