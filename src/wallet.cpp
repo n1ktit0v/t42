@@ -2192,7 +2192,7 @@ void CWallet::GetStakeWeightFromValue(const int64_t& nTime, const int64_t& nValu
         return;
     }
 
-    CBigNum bnStakeWeight = GetStakeWeightBN(CBigNum(nValue), nTimeWeight, GetTime());
+    CBigNum bnStakeWeight = GetStakeWeightBN(CBigNum(nValue), nTimeWeight, GetTime()) / GetStakeWeightScale(GetTime());
     nWeight = bnStakeWeight.getuint64();
 }
 

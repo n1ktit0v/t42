@@ -29,7 +29,7 @@ typedef std::map<int, unsigned int> MapModifierCheckpoints;
 CBigNum GetStakeWeightBN(const CBigNum& bnValueIn, int64_t nTimeWeight, unsigned int nTimeTx)
 {
     if (IsStakeWeightV2(nTimeTx))
-        return bnValueIn * nTimeWeight / COIN / nOneHour; // coin-hour resolution
+        return bnValueIn * nTimeWeight * STAKE_WEIGHT_SCALE / COIN / nOneHour; // coin-hour resolution, scaled
     return bnValueIn * nTimeWeight / COIN / nOneDay;      // coin-day resolution
 }
 
@@ -346,8 +346,16 @@ bool CheckStakeKernelHash(uint32_t nBits, const CBlock& blockFrom, uint32_t nTxP
 
     uint256 hashBlockFrom = blockFrom.GetHash();
 
+    int64_t nWeightScale = GetStakeWeightScale(nTimeTx);
+
     CBigNum bnCoinDayWeight = GetStakeWeightBN(CBigNum(nValueIn), GetWeight((int64_t)txPrev.nTime, (int64_t)nTimeTx), nTimeTx);
-    targetProofOfStake = (bnCoinDayWeight * bnTargetPerCoinDay).getuint256();
+    CBigNum bnStakeTarget = bnCoinDayWeight * bnTargetPerCoinDay;
+
+    CBigNum bnMaxTarget(~uint256(0));
+    CBigNum bnExactTarget = bnStakeTarget / nWeightScale;
+    if (bnExactTarget > bnMaxTarget)
+        bnExactTarget = bnMaxTarget;
+    targetProofOfStake = bnExactTarget.getuint256();
 
     // Calculate hash
     CDataStream ss(SER_GETHASH, 0);
@@ -375,7 +383,7 @@ bool CheckStakeKernelHash(uint32_t nBits, const CBlock& blockFrom, uint32_t nTxP
     }
 
     // Now check if proof-of-stake hash meets target protocol
-    if (CBigNum(hashProofOfStake) > bnCoinDayWeight * bnTargetPerCoinDay)
+    if (CBigNum(hashProofOfStake) * nWeightScale > bnStakeTarget)
         return false;
     if (fDebug && !fPrintProofOfStake)
     {

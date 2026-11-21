@@ -25,6 +25,15 @@ inline bool IsStakeWeightV2(unsigned int nTimeTx)
     return nStakeWeightV2Time != 0 && nTimeTx >= nStakeWeightV2Time;
 }
 
+// Resolution of the v2 stake weight: one weight unit is 1/STAKE_WEIGHT_SCALE
+// of a coin-hour, removing the integer quantization of fractional stakes
+static const int64_t STAKE_WEIGHT_SCALE = 1000;
+
+inline int64_t GetStakeWeightScale(unsigned int nTimeTx)
+{
+    return IsStakeWeightV2(nTimeTx) ? STAKE_WEIGHT_SCALE : 1;
+}
+
 // ChainDB upgrade time
 extern unsigned int nModifierUpgradeTime;
 
@@ -56,7 +65,8 @@ bool ScanKernelForward(unsigned char *kernel, uint32_t nBits, uint32_t nInputTxT
 // Sets hashProofOfStake on success return
 bool CheckProofOfStake(const CTransaction& tx, unsigned int nBits, uint256& hashProofOfStake, uint256& targetProofOfStake);
 
-// Compute stake weight of an input in coin-day units (v1) or coin-hour units (v2)
+// Compute stake weight of an input in coin-day units (v1) or scaled coin-hour
+// units (v2, multiplied by STAKE_WEIGHT_SCALE)
 CBigNum GetStakeWeightBN(const CBigNum& bnValueIn, int64_t nTimeWeight, unsigned int nTimeTx);
 
 // Get stake modifier checksum
