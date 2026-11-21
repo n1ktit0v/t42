@@ -73,12 +73,14 @@ int64_t KernelRecord::getAge() const
 
 uint64_t KernelRecord::getCoinDay() const
 {
-    int64_t nMinAge = IsStakeWeightV2(GetAdjustedTime()) ? nStakeMinAgeV2 : nStakeMinAge;
+    bool fStakeWeightV2 = IsStakeWeightV2(GetAdjustedTime());
+    int64_t nMinAge = fStakeWeightV2 ? nStakeMinAgeV2 : nStakeMinAge;
+    int64_t nUnit = fStakeWeightV2 ? nOneHour : nOneDay;
     int64_t nWeight = GetAdjustedTime() - nTime - nMinAge;
     if( nWeight <  0)
         return 0;
     nWeight = min(nWeight, (int64_t)nStakeMaxAge);
-    uint64_t coinAge = (nValue * nWeight ) / (COIN * nOneDay);
+    uint64_t coinAge = (nValue * nWeight ) / (COIN * nUnit);
     return coinAge;
 }
 
