@@ -579,8 +579,13 @@ int64_t CTransaction::GetMinFee(unsigned int nBlockSize, bool fAllowFree, enum G
     //
     // It's safe to ignore empty outputs here, because these inputs are allowed
     //     only for coinbase and coinstake transactions.
+    //
+    // In the v2 era the dust fee is skipped for coinstake outputs: fractional
+    // stakes below CENT must not be penalized, otherwise such coinstake is
+    // always rejected by the coinstake pays too much rule with zero reward.
+    bool fSkipStakeDustFee = IsCoinStake() && IsStakeWeightV2(nTime);
     for (const CTxOut& txout : vout)
-        if (txout.nValue < CENT && !txout.IsEmpty())
+        if (!fSkipStakeDustFee && txout.nValue < CENT && !txout.IsEmpty())
             nMinFee += nBaseFee;
 
     // Raise the price as the block approaches full
