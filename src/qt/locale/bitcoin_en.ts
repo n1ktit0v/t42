@@ -1528,13 +1528,13 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location filename="../mintingview.cpp" line="61"/>
-        <source>Display minting probability within : </source>
-        <translation>Display minting probability within : </translation>
+        <source>Display minting probability within: </source>
+        <translation>Display minting probability within: </translation>
     </message>
     <message>
         <location filename="../mintingview.cpp" line="63"/>
-        <source>10 min</source>
-        <translation>10 min</translation>
+        <source>12 hours</source>
+        <translation>12 hours</translation>
     </message>
     <message>
         <location filename="../mintingview.cpp" line="64"/>
@@ -1553,13 +1553,18 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location filename="../mintingview.cpp" line="67"/>
-        <source>60 days</source>
-        <translation>60 days</translation>
+        <source>48 hours</source>
+        <translation>48 hours</translation>
     </message>
     <message>
         <location filename="../mintingview.cpp" line="68"/>
         <source>90 days</source>
         <translation>90 days</translation>
+    </message>
+    <message>
+        <location filename="../mintingview.cpp" line="37"/>
+        <source>180 days</source>
+        <translation>180 days</translation>
     </message>
     <message>
         <location filename="../mintingview.cpp" line="103"/>

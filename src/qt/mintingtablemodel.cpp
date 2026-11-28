@@ -222,7 +222,7 @@ MintingTableModel::MintingTableModel(CWallet *wallet, WalletModel *parent):
         QAbstractTableModel(parent),
         wallet(wallet),
         walletModel(parent),
-        mintingInterval(10),
+        mintingInterval(12*60),
         priv(new MintingTablePriv(wallet, this))
 {
     columns << tr("Transaction") <<  tr("Address") << tr("Balance") << tr("Age") << tr("CoinDay") << tr("MintProbability");
